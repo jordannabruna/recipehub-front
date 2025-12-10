@@ -107,9 +107,9 @@ class RecipeDetailScreen extends StatelessWidget {
                   _sectionHeader("Ingredientes"),
                   _contentCard(
                     // Lógica simples para formatar texto em lista com bullets se houver quebras de linha
-                    recipe.description.isEmpty 
+                    (recipe.description ?? '').isEmpty
                     ? "Sem ingredientes." 
-                    : recipe.description.split('\n').map((e) => "• $e").join('\n')
+                    : (recipe.description ?? '').split('\n').map((e) => "• $e").join('\n')
                   ),
 
                   const SizedBox(height: 24),

@@ -2,16 +2,14 @@ class Recipe {
   final int? id;
   final String title;
   final String? description;
-  final String instructions;
-  final String mealType;
+  final String? instructions;
   final int? ownerId;
 
   Recipe({
     this.id,
     required this.title,
     this.description,
-    required this.instructions,
-    required this.mealType,
+    this.instructions,
     this.ownerId,
   });
 
@@ -20,8 +18,7 @@ class Recipe {
       id: json["id"],
       title: json["title"] ?? "",
       description: json["description"],
-      instructions: json["instructions"] ?? "",
-      mealType: json["meal_type"] ?? "",
+      instructions: json["instructions"],
       ownerId: json["owner_id"],
     );
   }
@@ -31,7 +28,6 @@ class Recipe {
       "title": title,
       "description": description,
       "instructions": instructions,
-      "meal_type": mealType,
       "owner_id": ownerId,
     };
   }

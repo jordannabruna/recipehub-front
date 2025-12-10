@@ -1,35 +1,41 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../core/api_client.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AuthService {
-  final ApiClient _apiClient = ApiClient();
-  final _storage = const FlutterSecureStorage();
+  final String baseUrl = "http://localhost:3000";
 
-  Future<bool> login(String email, String password) async {
-    try {
-      final response = await _apiClient.client.post(
-        '/auth/login',
-        data: {
-          'username': email, 
-          'password': password,
-        },
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final url = Uri.parse("$baseUrl/users");
 
-      if (response.statusCode == 200) {
-        final token = response.data['access_token'];
-        await _storage.write(key: 'access_token', value: token);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      print('Erro no login: $e');
-      return false;
-    }
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": name,
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    return response.statusCode == 201;
   }
 
-  Future<void> logout() async {
-    await _storage.delete(key: 'access_token');
+  Future<bool> login(String email, String password) async {
+    final url = Uri.parse("$baseUrl/login");
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    return response.statusCode == 200;
   }
 }

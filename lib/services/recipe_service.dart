@@ -7,7 +7,7 @@ class RecipeService {
 
   Future<List<Recipe>> getRecipes() async {
     try {
-      final response = await _apiClient.client.get('/recipes/');
+      final response = await _apiClient.client.get('/api/v1/recipes/');
       return (response.data as List)
           .map((e) => Recipe.fromJson(e))
           .toList();
@@ -19,7 +19,7 @@ class RecipeService {
 
   Future<bool> createRecipe(Recipe recipe) async {
     try {
-      await _apiClient.client.post('/recipes/', data: recipe.toJson());
+      await _apiClient.client.post('/api/v1/recipes/', data: recipe.toJson());
       return true;
     } catch (e) {
       print('Erro ao criar receita: $e');
@@ -29,7 +29,7 @@ class RecipeService {
 
   Future<bool> updateRecipe(int id, Recipe recipe) async {
     try {
-      await _apiClient.client.put('/recipes/$id', data: recipe.toJson());
+      await _apiClient.client.put('/api/v1/recipes/$id/', data: recipe.toJson());
       return true;
     } catch (e) {
       print('Erro ao atualizar: $e');
@@ -39,7 +39,7 @@ class RecipeService {
 
   Future<bool> deleteRecipe(int id) async {
     try {
-      await _apiClient.client.delete('/recipes/$id');
+      await _apiClient.client.delete('/api/v1/recipes/$id/');
       return true;
     } catch (e) {
       print('Erro ao deletar: $e');

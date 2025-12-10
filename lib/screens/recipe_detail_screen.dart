@@ -11,19 +11,27 @@ class RecipeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: const Color(0xFFF9FAFB), // Fundo claro
       appBar: AppBar(
-        title: const Text("Detalhes da Receita"),
+        title: Text(
+          "Detalhes da Receita", 
+          style: GoogleFonts.inter(
+            color: Colors.black87, 
+            fontWeight: FontWeight.w700, 
+            fontSize: 16
+          )
+        ),
         backgroundColor: Colors.white,
         centerTitle: true,
-        elevation: 1,
+        elevation: 0.5,
+        leading: const BackButton(color: Colors.black87),
         actions: [
+          // Botão Editar
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () {
-               Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeFormScreen(recipe: recipe)));
-            },
+            icon: const Icon(Icons.edit_outlined, color: Colors.black54),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeFormScreen(recipe: recipe))),
           ),
+          // Botão Excluir
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.red),
             onPressed: () => _confirmDelete(context),
@@ -33,12 +41,18 @@ class RecipeDetailScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Banner
+            // Banner Imagem (Placeholder ou URL)
             Container(
               height: 200,
               width: double.infinity,
-              color: Colors.grey.shade300,
-              child: const Icon(Icons.image, size: 80, color: Colors.grey),
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage('https://source.unsplash.com/800x400/?food,meal'),
+                  fit: BoxFit.cover,
+                ),
+                color: Colors.grey, // Cor de fundo caso a imagem falhe
+              ),
             ),
             
             Padding(
@@ -46,31 +60,63 @@ class RecipeDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(recipe.title, style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
+                  // Título da Receita
+                  Text(
+                    recipe.title, 
+                    style: GoogleFonts.inter(
+                      fontSize: 28, 
+                      fontWeight: FontWeight.w800, 
+                      color: const Color(0xFF111827)
+                    )
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Tags (Categoria e Tempo)
                   Row(
                     children: [
-                      Chip(label: const Text("Geral"), backgroundColor: Colors.orange.shade50, labelStyle: const TextStyle(color: Colors.orange)),
-                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50, 
+                          borderRadius: BorderRadius.circular(6)
+                        ),
+                        child: Text(
+                          recipe.category, 
+                          style: TextStyle(
+                            color: Colors.deepOrange.shade700, 
+                            fontSize: 12, 
+                            fontWeight: FontWeight.bold
+                          )
+                        ),
+                      ),
+                      const SizedBox(width: 16),
                       const Icon(Icons.access_time, size: 18, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      const Text("30 minutos", style: TextStyle(color: Colors.grey)),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${recipe.timeMinutes} minutos", 
+                        style: GoogleFonts.inter(
+                          color: Colors.grey[600], 
+                          fontWeight: FontWeight.w500
+                        )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 32),
 
-                  // Ingredientes
-                  _buildSectionCard(
-                    title: "Ingredientes",
-                    content: recipe.description.isEmpty ? "Sem ingredientes listados." : recipe.description,
+                  // Seção: Ingredientes
+                  _sectionHeader("Ingredientes"),
+                  _contentCard(
+                    // Lógica simples para formatar texto em lista com bullets se houver quebras de linha
+                    recipe.description.isEmpty 
+                    ? "Sem ingredientes." 
+                    : recipe.description.split('\n').map((e) => "• $e").join('\n')
                   ),
+
                   const SizedBox(height: 24),
 
-                  // Modo de Preparo
-                  _buildSectionCard(
-                    title: "Modo de Preparo",
-                    content: recipe.instructions,
-                  ),
+                  // Seção: Modo de Preparo
+                  _sectionHeader("Modo de Preparo"),
+                  _contentCard(recipe.instructions),
                 ],
               ),
             ),
@@ -80,7 +126,21 @@ class RecipeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionCard({required String title, required String content}) {
+  Widget _sectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Text(
+        title, 
+        style: GoogleFonts.inter(
+          fontSize: 16, 
+          fontWeight: FontWeight.bold, 
+          color: const Color(0xFF1F2937)
+        )
+      ),
+    );
+  }
+
+  Widget _contentCard(String content) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -89,13 +149,13 @@ class RecipeDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          Text(content, style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87)),
-        ],
+      child: Text(
+        content, 
+        style: GoogleFonts.inter(
+          fontSize: 15, 
+          height: 1.8, 
+          color: Colors.grey[800]
+        )
       ),
     );
   }
@@ -104,20 +164,33 @@ class RecipeDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Excluir Receita"),
+        title: const Text("Excluir Receita", style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text("Tem certeza que deseja excluir '${recipe.title}'? Esta ação não pode ser desfeita."),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        actionsPadding: const EdgeInsets.all(20),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.grey.shade300), 
+              foregroundColor: Colors.black87
+            ),
+            child: const Text("Cancelar"),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, 
+              elevation: 0
+            ),
             onPressed: () async {
+              // Chama o serviço para deletar
               await RecipeService().deleteRecipe(recipe.id!);
               if (context.mounted) {
-                Navigator.pop(ctx); // fecha dialog
-                Navigator.pop(context); // volta pra home
+                Navigator.pop(ctx); // Fecha o diálogo
+                Navigator.pop(context); // Volta para a tela anterior (Home)
               }
             },
-            child: const Text("Excluir"),
+            child: const Text("Excluir", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

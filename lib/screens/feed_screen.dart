@@ -100,7 +100,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         color: Color(0xFFFF6600),
                       ),
                     )
-                  : displayList.isEmpty
+                  : filteredList.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
                           onRefresh: _loadRecipes,

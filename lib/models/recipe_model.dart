@@ -7,6 +7,7 @@ class Recipe {
   final String? category;
   final int? timeMinutes;
   final String? imageUrl;
+  final String? mealType;
 
   Recipe({
     this.id,
@@ -17,6 +18,7 @@ class Recipe {
     this.category,
     this.timeMinutes,
     this.imageUrl,
+    this.mealType = 'lunch',
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Recipe {
       category: json["category"],
       timeMinutes: json["time_minutes"],
       imageUrl: json["image_url"],
+      mealType: json["meal_type"] ?? "lunch",
     );
   }
 
@@ -41,6 +44,7 @@ class Recipe {
       "category": category,
       "time_minutes": timeMinutes,
       "image_url": imageUrl,
+      "meal_type": mealType ?? "lunch",
     };
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:html' as html;
+import 'package:dio/dio.dart';
 import '../config/constants.dart';
 
 class AuthService {
@@ -33,19 +34,40 @@ class AuthService {
   }
 
   Future<bool> login(String email, String password) async {
-    final url = Uri.parse(
-      "${AppConstants.apiBaseUrl}${AppConstants.loginEndpoint}?email=$email&password=$password",
-    );
-
     try {
-      final response = await http.post(url);
+      print("Tentando fazer login com email: $email");
+      print("URL: ${AppConstants.apiBaseUrl}${AppConstants.loginEndpoint}");
+
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: AppConstants.apiBaseUrl,
+          connectTimeout: AppConstants.connectTimeout,
+          receiveTimeout: AppConstants.receiveTimeout,
+          validateStatus: (status) => status! < 500, // Não jogar erro para 4xx
+        ),
+      );
+
+      // Backend espera email e password como query parameters
+      final response = await dio.post(
+        AppConstants.loginEndpoint,
+        queryParameters: {
+          'email': email,
+          'password': password,
+        },
+      );
 
       print("Login Response: ${response.statusCode}");
-      print("Body: ${response.body}");
+      print("Body: ${response.data}");
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
+        final data = response.data;
+        // Backend retorna 'token', não 'access_token'
+        final token = data['token'] ?? data['access_token'];
+        
+        if (token == null) {
+          print("ERRO: Token não encontrado na resposta");
+          return false;
+        }
         
         // Armazenar token no localStorage (funciona em web)
         html.window.localStorage[AppConstants.tokenKey] = token;
@@ -61,6 +83,18 @@ class AuthService {
         print("Token e dados do usuário armazenados com sucesso");
         
         return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      print("Login DioError Type: ${e.type}");
+      print("Login Message: ${e.message}");
+      print("Login Response Status: ${e.response?.statusCode}");
+      print("Login Response Data: ${e.response?.data}");
+      
+      if (e.type == DioExceptionType.connectionTimeout) {
+        print("ERRO: Timeout ao conectar na API");
+      } else if (e.type == DioExceptionType.unknown) {
+        print("ERRO: Problema de conexão de rede ou CORS");
       }
       return false;
     } catch (e) {

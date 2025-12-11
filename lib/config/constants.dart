@@ -1,6 +1,6 @@
 /// Configurações e constantes da aplicação
 class AppConstants {
-  // URL Base da API
+  // URL Base da API - fixada para produção
   static const String apiBaseUrl = 'https://recipehub-back.onrender.com';
 
   // Timeouts
@@ -20,3 +20,4 @@ class AppConstants {
   static const String tokenKey = 'access_token';
   static const String userKey = 'user_data';
 }
+

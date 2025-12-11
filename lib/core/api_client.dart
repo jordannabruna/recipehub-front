@@ -1,16 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config/constants.dart';
 
 class ApiClient {
-  // Para Flutter Web, localhost funciona perfeitamente
-  static const String baseUrl = 'http://localhost:8000/api/v1';
-
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: AppConstants.apiBaseUrl,
       contentType: Headers.jsonContentType,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: AppConstants.connectTimeout,
+      receiveTimeout: AppConstants.receiveTimeout,
     ),
   );
 
@@ -20,7 +18,7 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await _storage.read(key: 'access_token');
+          final token = await _storage.read(key: AppConstants.tokenKey);
 
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -30,6 +28,7 @@ class ApiClient {
         },
         onError: (DioException e, handler) {
           print("Erro de API: ${e.response?.statusCode} - ${e.message}");
+          print("URL: ${e.requestOptions.uri}");
           return handler.next(e);
         },
       ),

@@ -81,7 +81,7 @@ class RecipeDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6)
                         ),
                         child: Text(
-                          recipe.category, 
+                          recipe.category ?? "Sem categoria", 
                           style: TextStyle(
                             color: Colors.deepOrange.shade700, 
                             fontSize: 12, 
@@ -105,23 +105,82 @@ class RecipeDetailScreen extends StatelessWidget {
 
                   // Seção: Ingredientes
                   _sectionHeader("Ingredientes"),
-                  _contentCard(
-                    // Lógica simples para formatar texto em lista com bullets se houver quebras de linha
-                    (recipe.description ?? '').isEmpty
-                    ? "Sem ingredientes." 
-                    : (recipe.description ?? '').split('\n').map((e) => "• $e").join('\n')
-                  ),
+                  _buildIngredientsList(recipe.description ?? ""),
 
                   const SizedBox(height: 24),
 
                   // Seção: Modo de Preparo
                   _sectionHeader("Modo de Preparo"),
-                  _contentCard(recipe.instructions),
+                  _contentCard(recipe.instructions ?? "Sem instruções"),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Text(
+        title, 
+        style: GoogleFonts.inter(
+          fontSize: 16, 
+          fontWeight: FontWeight.bold, 
+          color: const Color(0xFF1F2937)
+        )
+      ),
+    );
+  }
+
+  Widget _buildIngredientsList(String description) {
+    if (description.isEmpty) {
+      return _contentCard("Sem ingredientes.");
+    }
+
+    final ingredients = description.split('\n').where((e) => e.isNotEmpty).toList();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: ingredients.map((ingredient) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "• ",
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: Colors.orange.shade500,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    ingredient,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      height: 1.6,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }

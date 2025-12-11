@@ -94,10 +94,14 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                     )
                   : filteredList.isEmpty
                       ? _buildEmptyState()
-                      : ListView.separated(
+                      : GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.7,
+                          ),
                           itemCount: filteredList.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 16),
                           itemBuilder: (context, index) =>
                               _buildRecipeCard(filteredList[index]),
                         ),
@@ -179,141 +183,70 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                 topRight: Radius.circular(12),
               ),
               child: Container(
-                height: 160,
+                height: 110,
                 width: double.infinity,
                 color: Colors.orange.shade50,
                 child: Image.network(
                   recipe.imageUrl ?? 'https://source.unsplash.com/400x200/?food,dish',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.restaurant, color: Colors.orange, size: 40),
+                      const Icon(Icons.restaurant, color: Colors.orange, size: 30),
                 ),
               ),
             ),
           ),
 
           // Título e Info
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  recipe.title,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF111827),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recipe.title,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF111827),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (recipe.category != null && recipe.category!.isNotEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          recipe.category!,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if (recipe.category != null && recipe.category!.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(3),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
-                    const Icon(Icons.access_time,
-                        size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${recipe.timeMinutes ?? 0}min',
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Botões de Ação
-                Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => RecipeFormScreen(recipe: recipe),
+                          child: Text(
+                            recipe.category!,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
                             ),
-                          );
-                          _loadRecipes();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF6600).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.edit_outlined,
-                                  size: 16, color: Color(0xFFFF6600)),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Editar',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFFF6600),
-                                ),
-                              ),
-                            ],
                           ),
                         ),
+                        const SizedBox(width: 8),
+                      ],
+                      const Icon(Icons.access_time,
+                          size: 12, color: Colors.grey),
+                      const SizedBox(width: 3),
+                      Text(
+                        '${recipe.timeMinutes ?? 0}min',
+                        style:
+                            const TextStyle(fontSize: 10, color: Colors.grey),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => _showDeleteConfirmation(context, recipe),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.delete_outline,
-                                  size: 16, color: Colors.red),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Deletar',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

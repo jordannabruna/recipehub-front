@@ -100,15 +100,19 @@ class _FeedScreenState extends State<FeedScreen> {
                         color: Color(0xFFFF6600),
                       ),
                     )
-                  : filteredList.isEmpty
+                  : displayList.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
                           onRefresh: _loadRecipes,
                           color: const Color(0xFFFF6600),
-                          child: ListView.separated(
+                          child: GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.7,
+                            ),
                             itemCount: filteredList.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 16),
                             itemBuilder: (context, index) =>
                                 _buildRecipeCard(filteredList[index]),
                           ),
@@ -178,156 +182,48 @@ class _FeedScreenState extends State<FeedScreen> {
                 topRight: Radius.circular(12),
               ),
               child: Container(
-                height: 200,
+                height: 110,
                 width: double.infinity,
                 color: Colors.orange.shade50,
                 child: Image.network(
                   recipe.imageUrl ?? 'https://source.unsplash.com/400x200/?food,dish',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.restaurant, color: Colors.orange, size: 50),
+                      const Icon(Icons.restaurant, color: Colors.orange, size: 30),
                 ),
               ),
             ),
             
-            // Info do Autor
-            InkWell(
-              onTap: () {
-                if (recipe.ownerId != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => UserProfileScreen(userId: recipe.ownerId!),
-                    ),
-                  );
-                }
-              },
+            // Título e Info
+            Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar do Autor
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.orange.shade400,
-                            Colors.green.shade400,
-                          ],
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: recipe.ownerProfileImage != null
-                            ? Image.network(
-                                recipe.ownerProfileImage!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.person, color: Colors.white, size: 20),
-                              )
-                            : const Icon(Icons.person, color: Colors.white, size: 20),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            recipe.ownerName ?? "Usuário",
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF111827),
-                            ),
-                          ),
-                          Text(
-                            'Ver perfil',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: const Color(0xFFFF6600),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Título e Descrição
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  if (recipe.description != null && recipe.description!.isNotEmpty)
                     Text(
-                      recipe.description!,
+                      recipe.title,
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                ],
-              ),
-            ),
-
-            // Tags (Categoria e Tempo)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  if (recipe.category != null && recipe.category!.isNotEmpty) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        recipe.category!,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFFFF6600),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  if (recipe.timeMinutes != null) ...[
-                    Icon(Icons.access_time,
-                        size: 16, color: Colors.grey.shade600),
-                    const SizedBox(width: 6),
+                    const SizedBox(height: 6),
                     Text(
-                      '${recipe.timeMinutes}min',
+                      recipe.ownerName ?? "Usuário",
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
                         color: Colors.grey[600],
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                ],
+                ),
               ),
             ),
           ],

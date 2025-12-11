@@ -107,10 +107,10 @@ class _FeedScreenState extends State<FeedScreen> {
                           color: const Color(0xFFFF6600),
                           child: GridView.builder(
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.7,
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.65,
                             ),
                             itemCount: filteredList.length,
                             itemBuilder: (context, index) =>
@@ -189,7 +189,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   recipe.imageUrl ?? 'https://source.unsplash.com/400x200/?food,dish',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.restaurant, color: Colors.orange, size: 30),
+                      const Icon(Icons.restaurant, color: Colors.orange, size: 24),
                 ),
               ),
             ),
@@ -197,25 +197,25 @@ class _FeedScreenState extends State<FeedScreen> {
             // Título e Info
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       recipe.title,
                       style: GoogleFonts.inter(
-                        fontSize: 13,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       recipe.ownerName ?? "Usuário",
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 8,
                         fontWeight: FontWeight.w500,
                         color: Colors.grey[600],
                       ),

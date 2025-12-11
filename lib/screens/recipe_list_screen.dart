@@ -96,10 +96,10 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                       ? _buildEmptyState()
                       : GridView.builder(
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.7,
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.65,
                           ),
                           itemCount: filteredList.length,
                           itemBuilder: (context, index) =>
@@ -190,7 +190,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                   recipe.imageUrl ?? 'https://source.unsplash.com/400x200/?food,dish',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.restaurant, color: Colors.orange, size: 30),
+                      const Icon(Icons.restaurant, color: Colors.orange, size: 24),
                 ),
               ),
             ),
@@ -199,49 +199,49 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           // Título e Info
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     recipe.title,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF111827),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       if (recipe.category != null && recipe.category!.isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                              horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(3),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                           child: Text(
                             recipe.category!,
                             style: const TextStyle(
-                              fontSize: 10,
+                              fontSize: 8,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                       ],
                       const Icon(Icons.access_time,
-                          size: 12, color: Colors.grey),
-                      const SizedBox(width: 3),
+                          size: 10, color: Colors.grey),
+                      const SizedBox(width: 2),
                       Text(
                         '${recipe.timeMinutes ?? 0}min',
                         style:
-                            const TextStyle(fontSize: 10, color: Colors.grey),
+                            const TextStyle(fontSize: 8, color: Colors.grey),
                       ),
                     ],
                   ),

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/constants.dart';
 
 class AuthService {
+  final _storage = const FlutterSecureStorage();
   Future<bool> register({
     required String name,
     required String email,
@@ -42,16 +44,30 @@ class AuthService {
       print("Login Response: ${response.statusCode}");
       print("Body: ${response.body}");
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        
+        // Armazenar token de forma segura
+        await _storage.write(key: AppConstants.tokenKey, value: token);
+        print("Token armazenado com sucesso");
+        
+        return true;
+      }
+      return false;
     } catch (e) {
       print("Login Error: $e");
       return false;
     }
   }
 
+  Future<String?> getToken() async {
+    return await _storage.read(key: AppConstants.tokenKey);
+  }
+
   Future<void> logout() async {
-    // Implementar lógica de logout (limpar token, etc)
-    // Por enquanto, apenas retorna
-    return Future.value();
+    // Limpar token armazenado
+    await _storage.delete(key: AppConstants.tokenKey);
+    print("Logout realizado - token removido");
   }
 }

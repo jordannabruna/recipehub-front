@@ -9,7 +9,7 @@ class AppConstants {
   static const Duration receiveTimeout = Duration(seconds: 10);
 
   // Endpoints de Autenticação
-  static const String loginEndpoint = '/login';
+  static const String loginEndpoint = '/users/login';
   static const String registerEndpoint = '/users';
   static const String logoutEndpoint = '/logout';
 

@@ -49,7 +49,16 @@ class AuthService {
         
         // Armazenar token no localStorage (funciona em web)
         html.window.localStorage[AppConstants.tokenKey] = token;
-        print("Token armazenado no localStorage: $token");
+        
+        // Armazenar dados do usuário
+        html.window.localStorage[AppConstants.userKey] = jsonEncode({
+          'id': data['id'],
+          'email': data['email'],
+          'full_name': data['full_name'],
+          'profile_image_url': data['profile_image_url'],
+        });
+        
+        print("Token e dados do usuário armazenados com sucesso");
         
         return true;
       }
@@ -64,9 +73,18 @@ class AuthService {
     return html.window.localStorage[AppConstants.tokenKey];
   }
 
+  Map<String, dynamic>? getUserData() {
+    final userJson = html.window.localStorage[AppConstants.userKey];
+    if (userJson != null) {
+      return jsonDecode(userJson) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
   Future<void> logout() async {
-    // Limpar token do localStorage
+    // Limpar token e dados do usuário do localStorage
     html.window.localStorage.remove(AppConstants.tokenKey);
-    print("Logout realizado - token removido");
+    html.window.localStorage.remove(AppConstants.userKey);
+    print("Logout realizado - token e dados removidos");
   }
 }

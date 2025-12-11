@@ -3,8 +3,21 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    userData = AuthService().getUserData();
+  }
 
   void _logout(BuildContext context) async {
     await AuthService().logout();
@@ -19,6 +32,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = userData?['full_name'] ?? "Usuário";
+    final email = userData?['email'] ?? "email@example.com";
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -57,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      "João Silva",
+                      name,
                       style: GoogleFonts.inter(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -66,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      "joao.silva@email.com",
+                      email,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: Colors.grey[600],

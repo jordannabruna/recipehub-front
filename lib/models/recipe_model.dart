@@ -8,6 +8,9 @@ class Recipe {
   final int? timeMinutes;
   final String? imageUrl;
   final String? mealType;
+  // Dados do autor
+  final String? ownerName;
+  final String? ownerProfileImage;
 
   Recipe({
     this.id,
@@ -19,6 +22,8 @@ class Recipe {
     this.timeMinutes,
     this.imageUrl,
     this.mealType = 'lunch',
+    this.ownerName,
+    this.ownerProfileImage,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -32,6 +37,8 @@ class Recipe {
       timeMinutes: json["time_minutes"],
       imageUrl: json["image_url"],
       mealType: json["meal_type"] ?? "lunch",
+      ownerName: json["owner_name"] ?? json["user"]?["full_name"],
+      ownerProfileImage: json["owner_profile_image"] ?? json["user"]?["profile_image_url"],
     );
   }
 

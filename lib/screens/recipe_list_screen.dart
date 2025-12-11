@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/recipe_model.dart';
 import '../services/recipe_service.dart';
+import '../services/auth_service.dart';
 import 'recipe_form_screen.dart';
 import 'recipe_detail_screen.dart';
-import 'profile_screen.dart';
+import 'login_screen.dart';
 
 class RecipeListScreen extends StatefulWidget {
   const RecipeListScreen({super.key});
@@ -14,7 +15,8 @@ class RecipeListScreen extends StatefulWidget {
 }
 
 class _RecipeListScreenState extends State<RecipeListScreen> {
-  final RecipeService _service = RecipeService();
+  final RecipeService _recipeService = RecipeService();
+  final AuthService _authService = AuthService();
   List<Recipe> _recipes = [];
   bool _isLoading = true;
   String _searchQuery = '';
@@ -26,7 +28,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   }
 
   Future<void> _loadRecipes() async {
-    final recipes = await _service.getRecipes();
+    final recipes = await _recipeService.getMyRecipes();
     setState(() {
       _recipes = recipes;
       _isLoading = false;
@@ -53,15 +55,6 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
         ),
         elevation: 0,
         centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.black87),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -154,63 +147,71 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   }
 
   Widget _buildRecipeCard(Recipe recipe) {
-    return InkWell(
-      onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => RecipeDetailScreen(recipe: recipe),
-          ),
-        );
-        _loadRecipes();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ],
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(50),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          // Imagem
+          InkWell(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RecipeDetailScreen(recipe: recipe),
+                ),
+              );
+              _loadRecipes();
+            },
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
               child: Container(
-                width: 64,
-                height: 64,
+                height: 160,
+                width: double.infinity,
                 color: Colors.orange.shade50,
                 child: Image.network(
-                  'https://source.unsplash.com/200x200/?food,dish',
+                  recipe.imageUrl ?? 'https://source.unsplash.com/400x200/?food,dish',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.restaurant, color: Colors.orange),
+                      const Icon(Icons.restaurant, color: Colors.orange, size: 40),
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+          ),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF111827),
-                    ),
+          // Título e Info
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recipe.title,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF111827),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (recipe.category != null && recipe.category!.isNotEmpty) ...[
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
@@ -219,7 +220,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          recipe.category ?? "Sem categoria",
+                          recipe.category!,
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -228,22 +229,173 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.access_time,
-                          size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${recipe.timeMinutes}min',
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
                     ],
-                  )
-                ],
+                    const Icon(Icons.access_time,
+                        size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${recipe.timeMinutes ?? 0}min',
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Botões de Ação
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RecipeFormScreen(recipe: recipe),
+                            ),
+                          );
+                          _loadRecipes();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6600).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.edit_outlined,
+                                  size: 16, color: Color(0xFFFF6600)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Editar',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFFF6600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _showDeleteConfirmation(context, recipe),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.delete_outline,
+                                  size: 16, color: Colors.red),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Deletar',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Recipe recipe) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Deletar receita?',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF111827),
+            ),
+          ),
+          content: Text(
+            'Você tem certeza que deseja deletar "${recipe.title}"? Essa ação não pode ser desfeita.',
+            style: GoogleFonts.inter(color: Colors.grey[700]),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancelar',
+                style: GoogleFonts.inter(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _deleteRecipe(recipe.id!);
+              },
+              child: Text(
+                'Deletar',
+                style: GoogleFonts.inter(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  Future<void> _deleteRecipe(int recipeId) async {
+    final success = await _recipeService.deleteRecipe(recipeId);
+    if (success) {
+      _loadRecipes();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Receita deletada com sucesso!',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao deletar receita',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 }

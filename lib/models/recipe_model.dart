@@ -27,18 +27,28 @@ class Recipe {
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
+    // Extrair dados do owner (retornado pelo backend)
+    final owner = json["owner"] as Map<String, dynamic>?;
+    final ownerName = owner?["name"] ?? 
+                      owner?["full_name"] ?? 
+                      json["owner_name"] ?? 
+                      json["user"]?["full_name"];
+    final ownerProfileImage = owner?["profile_image_url"] ?? 
+                              json["owner_profile_image"] ?? 
+                              json["user"]?["profile_image_url"];
+    
     return Recipe(
       id: json["id"],
       title: json["title"] ?? "",
       description: json["description"],
       instructions: json["instructions"],
-      ownerId: json["owner_id"],
+      ownerId: owner?["id"] ?? json["owner_id"],
       category: json["category"],
       timeMinutes: json["time_minutes"],
       imageUrl: json["image_url"],
       mealType: json["meal_type"] ?? "lunch",
-      ownerName: json["owner_name"] ?? json["user"]?["full_name"],
-      ownerProfileImage: json["owner_profile_image"] ?? json["user"]?["profile_image_url"],
+      ownerName: ownerName,
+      ownerProfileImage: ownerProfileImage,
     );
   }
 

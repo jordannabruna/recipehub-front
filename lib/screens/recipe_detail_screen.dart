@@ -185,20 +185,6 @@ class RecipeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Text(
-        title, 
-        style: GoogleFonts.inter(
-          fontSize: 16, 
-          fontWeight: FontWeight.bold, 
-          color: const Color(0xFF1F2937)
-        )
-      ),
-    );
-  }
-
   Widget _contentCard(String content) {
     return Container(
       width: double.infinity,

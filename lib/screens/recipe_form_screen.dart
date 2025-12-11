@@ -328,7 +328,8 @@ class _RecipeFormScreenState extends State<RecipeFormScreen> {
                                   backgroundColor: Colors.green,
                                 ),
                               );
-                              Navigator.pop(context);
+                              // Retorna true se foi edição, para indicar ao detalhe que foi atualizado
+                              Navigator.pop(context, widget.recipe != null ? true : null);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

@@ -4,9 +4,22 @@ import '../models/recipe_model.dart';
 import '../services/recipe_service.dart';
 import 'recipe_form_screen.dart';
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends StatefulWidget {
   final Recipe recipe;
   const RecipeDetailScreen({super.key, required this.recipe});
+
+  @override
+  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  late Recipe currentRecipe;
+
+  @override
+  void initState() {
+    super.initState();
+    currentRecipe = widget.recipe;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +42,18 @@ class RecipeDetailScreen extends StatelessWidget {
           // Botão Editar
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: Colors.black54),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeFormScreen(recipe: recipe))),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => RecipeFormScreen(recipe: currentRecipe)),
+              );
+              // Se retornar true, significa que editou, então recarrega
+              if (result == true) {
+                setState(() {
+                  // Força rebuild com dados atualizados
+                });
+              }
+            },
           ),
           // Botão Excluir
           IconButton(
@@ -62,7 +86,7 @@ class RecipeDetailScreen extends StatelessWidget {
                 children: [
                   // Título da Receita
                   Text(
-                    recipe.title, 
+                    currentRecipe.title, 
                     style: GoogleFonts.inter(
                       fontSize: 28, 
                       fontWeight: FontWeight.w800, 
@@ -77,11 +101,11 @@ class RecipeDetailScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.orange.shade50, 
+                          color: Colors.orange.shade50,
                           borderRadius: BorderRadius.circular(6)
                         ),
                         child: Text(
-                          recipe.category ?? "Sem categoria", 
+                          currentRecipe.category ?? "Sem categoria", 
                           style: TextStyle(
                             color: Colors.deepOrange.shade700, 
                             fontSize: 12, 
@@ -93,7 +117,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       const Icon(Icons.access_time, size: 18, color: Colors.grey),
                       const SizedBox(width: 6),
                       Text(
-                        "${recipe.timeMinutes} minutos", 
+                        "${currentRecipe.timeMinutes} minutos", 
                         style: GoogleFonts.inter(
                           color: Colors.grey[600], 
                           fontWeight: FontWeight.w500
@@ -105,13 +129,13 @@ class RecipeDetailScreen extends StatelessWidget {
 
                   // Seção: Ingredientes
                   _sectionHeader("Ingredientes"),
-                  _buildIngredientsList(recipe.description ?? ""),
+                  _buildIngredientsList(currentRecipe.description ?? ""),
 
                   const SizedBox(height: 24),
 
                   // Seção: Modo de Preparo
                   _sectionHeader("Modo de Preparo"),
-                  _contentCard(recipe.instructions ?? "Sem instruções"),
+                  _contentCard(currentRecipe.instructions ?? "Sem instruções"),
                 ],
               ),
             ),
@@ -210,7 +234,7 @@ class RecipeDetailScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Excluir Receita", style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text("Tem certeza que deseja excluir '${recipe.title}'? Esta ação não pode ser desfeita."),
+        content: Text("Tem certeza que deseja excluir '${currentRecipe.title}'? Esta ação não pode ser desfeita."),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         actionsPadding: const EdgeInsets.all(20),
         actions: [
@@ -229,7 +253,7 @@ class RecipeDetailScreen extends StatelessWidget {
             ),
             onPressed: () async {
               // Chama o serviço para deletar
-              await RecipeService().deleteRecipe(recipe.id!);
+              await RecipeService().deleteRecipe(currentRecipe.id!);
               if (context.mounted) {
                 Navigator.pop(ctx); // Fecha o diálogo
                 Navigator.pop(context); // Volta para a tela anterior (Home)

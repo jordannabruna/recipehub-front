@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:html' as html;
 import '../config/constants.dart';
 
 class AuthService {
-  final _storage = const FlutterSecureStorage();
   Future<bool> register({
     required String name,
     required String email,
@@ -48,9 +47,9 @@ class AuthService {
         final data = jsonDecode(response.body);
         final token = data['token'];
         
-        // Armazenar token de forma segura
-        await _storage.write(key: AppConstants.tokenKey, value: token);
-        print("Token armazenado com sucesso");
+        // Armazenar token no localStorage (funciona em web)
+        html.window.localStorage[AppConstants.tokenKey] = token;
+        print("Token armazenado no localStorage: $token");
         
         return true;
       }
@@ -62,12 +61,12 @@ class AuthService {
   }
 
   Future<String?> getToken() async {
-    return await _storage.read(key: AppConstants.tokenKey);
+    return html.window.localStorage[AppConstants.tokenKey];
   }
 
   Future<void> logout() async {
-    // Limpar token armazenado
-    await _storage.delete(key: AppConstants.tokenKey);
+    // Limpar token do localStorage
+    html.window.localStorage.remove(AppConstants.tokenKey);
     print("Logout realizado - token removido");
   }
 }
